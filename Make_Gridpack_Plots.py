@@ -17,11 +17,11 @@ def Get_Proc_Name_Gridpack(gridpack_path):
         if "tgz" in item:
             gp_name = item
     if "VBF" in gp_name:
-      return "--vbf_withdecay"
+      return "-p JJVBF"
     elif "WH" in gp_name:
-      return "--wh_withdecay"
+      return "-m wh_withdecay"
     elif "ZH" in gp_name:
-      return "--zh_withdecay"
+      return "-m zh_withdecay"
     else:
       raise ValueError("Not a Valid Name")
 
@@ -38,8 +38,8 @@ def Check_JHUGen_Repo():
     return False
 
 def Download_JHUGen():
-  download_command = "wget https://spin.pha.jhu.edu/Generator/JHUGenerator.v7.5.5.tar.gz"
-  untar_command = "tar -xf JHUGenerator.v7.5.5.tar.gz && mv JHUGenerator.v7.5.5 JHUGen"
+  download_command = "wget https://spin.pha.jhu.edu/Generator/JHUGenerator.v7.5.6.tar.gz"
+  untar_command = "tar -xf JHUGenerator.v7.5.6.tar.gz && mv JHUGenerator.v7.5.6 JHUGen"
   clean_tar_command = "find \".\" -name *.gz -type f -delete"
   os.system(download_command)
   os.system(untar_command)
@@ -164,7 +164,7 @@ def main(argv):
     if not os.path.exists("RunScripts"):
       os.mkdir("RunScripts")
     RunScript_Name_Temp = "RunScript_{}.sh".format(job_num)
-    make_run_script = "cp RunScript_Template.sh RunScripts/{}".format(RunScript_Name_Temp)
+    make_run_script = "cp RunScript_Template_v2.sh RunScripts/{}".format(RunScript_Name_Temp)
     os.system(make_run_script)
     Proc_Name = Get_Proc_Name_Gridpack(gridpack)
     OutLHEName = "cmsgrid_final_{}.lhe".format(job_num)
