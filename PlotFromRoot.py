@@ -7,6 +7,10 @@ import copy
 import uproot 
 import matplotlib.pyplot as plt
 import mplhep as hep 
+import vector 
+import awkward as ak 
+
+make_cuts = True 
 hep.style.use("CMS")
 
 def Get_New_Binning(xl,xu,nb):
@@ -70,7 +74,18 @@ def main(argv):
 
   print(inputroot[0])
   f = uproot.open(inputroot[0])
-  tree = f["tree;1"].arrays(library = 'np')
+  tree = f["tree;1"].arrays(library = 'pd')
+  # print(tree)
+
+  if make_cuts: 
+     tree = tree[tree["DRjj"] > 0.3]
+     tree = tree[tree["ptj1"] > 15]
+     tree = tree[tree["ptj2"] > 15]
+   
+    
+     
+
+
 
   if outputdir.endswith("/"):
     pass
@@ -86,11 +101,11 @@ def main(argv):
     # f.tree.Draw(observable)
     # hist = copy.deepcopy(ROOT.gPad.GetPrimitive("htemp"))
     # c1 = ROOT.TCanvas("","",900,900)
-    if "cos" in observable.lower() or "phi" in observable.lower() :
+    if "cos" in observable.lower():
       xRangeUpper = 1
       xRangeLower = -1
       yRangeLower = 0 
-      Nbins = 15
+      Nbins = 40
     elif "mz1" in observable.lower():
       xRangeUpper = 120
       xRangeLower = 0  
@@ -107,11 +122,25 @@ def main(argv):
       xRangeUpper = 100000
       xRangeLower = 0
       Nbins = 50
+    elif "phi" in observable.lower():
+       xRangeUpper = np.pi
+       xRangeLower = -1*np.pi
+       Nbins = 40 
+
     new_bin_range = np.linspace(xRangeLower,xRangeUpper,Nbins+1)
-    hist, _ = np.histogram(tree[observable], bins = new_bin_range)
+    if "q2" in observable.lower(): 
+       hist, _ = np.histogram(tree[observable], bins = new_bin_range)
+       sqrt_hist, sqrt_bins = np.histogram(np.sqrt(tree[observable]), bins = np.linspace(0, 600, 51))
+       
+    else:
+      hist, _ = np.histogram(tree[observable], bins = new_bin_range)
+      # if "phi" in observable.lower(): 
+        #  print(new_bin_range)
     hist = hist.astype("float64")
     #hist.SetMinimum(0)
     hist *= 1/hist.sum()
+   
+
     
     couplings_text = Couplings_Parser(rundir)
     #print(couplings_text)
@@ -122,5 +151,23 @@ def main(argv):
     plt.xlabel(observable, fontsize=15)
     plt.savefig(outputdir+observable+".pdf", format="pdf")
     plt.savefig(outputdir+observable+".png", format="png")
+    if "v1" in observable.lower():
+      sqrt_hist.astype("float64")
+      sqrt_hist = sqrt_hist * 1/sqrt_hist.sum()
+      plt.figure(figsize = (10,10), dpi=100)
+      hep.histplot(sqrt_hist, sqrt_bins, color = 'r')
+      hep.cms.text(couplings_text, exp = 'CMS (Simulation)',fontsize = 12, italic = (True, True, True), loc = 0)
+      plt.xlabel("qV1", fontsize=15)
+      plt.savefig(outputdir+"qV1.pdf", format="pdf")
+      plt.savefig(outputdir+"qV1.png", format="png")
+    elif "v2" in observable.lower():
+      sqrt_hist.astype("float64")
+      sqrt_hist = sqrt_hist * 1/sqrt_hist.sum()
+      plt.figure(figsize = (10,10), dpi=100)
+      hep.histplot(sqrt_hist, sqrt_bins, color = 'r')
+      hep.cms.text(couplings_text, exp = 'CMS (Simulation)',fontsize = 12, italic = (True, True, True), loc = 0)
+      plt.xlabel("qV2", fontsize=15)
+      plt.savefig(outputdir+"qV2.pdf", format="pdf")
+      plt.savefig(outputdir+"qV2.png", format="png")
 if __name__ == "__main__":
     main(sys.argv[1:])

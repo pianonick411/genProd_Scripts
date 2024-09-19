@@ -163,12 +163,12 @@ def main(argv):
     # Make RunScript #
     if not os.path.exists("RunScripts"):
       os.mkdir("RunScripts")
+    Proc_Name = Get_Proc_Name_Gridpack(gridpack)
     RunScript_Name_Temp = "RunScript_{}.sh".format(job_num)
     make_run_script = "cp RunScript_Template_v2.sh RunScripts/{}".format(RunScript_Name_Temp)
-    os.system(make_run_script)
-    Proc_Name = Get_Proc_Name_Gridpack(gridpack)
-    OutLHEName = "cmsgrid_final_{}.lhe".format(job_num)
-    OutRootName = "out_{}.root".format(job_num)
+    os.system(make_run_script) 
+    OutLHEName = "cmsgrid_final_{}.lhe".format(gridpack.split("/")[-1].split(".")[0])
+    OutRootName = "out_{}.root".format(gridpack.split("/")[-1].split(".")[0])
     CMSSW_PATH = os.path.abspath(glob.glob("CMSSW*")[0])
     MELA_PY_PATH = os.path.abspath("JHUGen/JHUGenMELA/MELA/python")
     HOME_DIR = os.getcwd()
@@ -188,15 +188,15 @@ def main(argv):
       text = text.replace("PATH_TO_PLOTS_DIR",Path_To_Plot_Dir)
       f.write(text)
     # Make_CondorScript #
-    CondorScriptTempName = "condor_{}.sub".format(job_num)
+    CondorScriptTempName = "condor_{}.sub".format(gridpack.split("/")[-1].split(".")[0])
     make_condor_script_command = "cp condor_script_template.sub RunScripts/{}".format(CondorScriptTempName)
     os.system(make_condor_script_command)
     with open("RunScripts/{}".format(CondorScriptTempName)) as f:
       text = f.read()
     with open("RunScripts/{}".format(CondorScriptTempName),"w") as f:
-      text = text.replace("OUTOUT","RunScripts/{}.out".format(job_num))
-      text = text.replace("OUTERR","RunScripts/{}.err".format(job_num))
-      text = text.replace("OUTLOG","RunScripts/{}.log".format(job_num))
+      text = text.replace("OUTOUT","RunScripts/{}.out".format(gridpack.split("/")[-1].split(".")[0]))
+      text = text.replace("OUTERR","RunScripts/{}.err".format(gridpack.split("/")[-1].split(".")[0]))
+      text = text.replace("OUTLOG","RunScripts/{}.log".format(gridpack.split("/")[-1].split(".")[0]))
       text = text.replace("NAME","executable = "+os.path.abspath("RunScripts/{}".format(RunScript_Name_Temp)))
       f.write(text)
     job_num=job_num+1
