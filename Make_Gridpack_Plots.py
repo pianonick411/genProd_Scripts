@@ -13,15 +13,17 @@ def Setup_Bash_Script():
 def Get_Proc_Name_Gridpack(gridpack_path):
     splits = gridpack_path.split("/")
     gp_name = None
+    #print(splits)
     for item in splits:
         if "tgz" in item:
             gp_name = item
+    print("This is gp_name: ", gp_name)
     if "VBF" in gp_name:
-      return "-p JJVBF"
+      return "-p JJVBF --no_mothers"
     elif "WH" in gp_name:
       return "-m wh_withdecay"
     elif "ZH" in gp_name:
-      return "-m zh_withdecay"
+      return "-m zh_withdecay -p Had_ZH"
     else:
       raise ValueError("Not a Valid Name")
 

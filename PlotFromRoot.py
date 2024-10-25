@@ -10,7 +10,8 @@ import mplhep as hep
 import vector 
 import awkward as ak 
 
-make_cuts = True 
+make_VBFcuts = False
+make_VHcuts = False 
 hep.style.use("CMS")
 
 def Get_New_Binning(xl,xu,nb):
@@ -71,16 +72,33 @@ def main(argv):
   if not all([inputroot, outputdir]):
         print('Make_Gridpack_Plots.py -i <input_root> -o <output_directory>')
         sys.exit(2)
+  
+  if "zh" or "wh" in rundir.lower():
+     make_VHcuts = True
+     make_VBFcuts = False
+     print("Making VH cuts.")
+  elif "vbf" in rundir.lower():
+     make_VBFcuts = True
+     make_VHcuts = False
+     print("Making VBF cuts.")
+  else:
+     make_VBFcuts = False
+     make_VHcuts = False
+     print("Making no cuts.")
 
   print(inputroot[0])
   f = uproot.open(inputroot[0])
   tree = f["tree;1"].arrays(library = 'pd')
   # print(tree)
 
-  if make_cuts: 
+  if make_VBFcuts: 
      tree = tree[tree["DRjj"] > 0.3]
      tree = tree[tree["ptj1"] > 15]
      tree = tree[tree["ptj2"] > 15]
+
+  if make_VHcuts:
+    tree = tree[tree["M4L"] > 124]
+    tree = tree[tree["costheta1"] != 0]
    
     
      
@@ -92,7 +110,9 @@ def main(argv):
   else:
     outputdir=outputdir+"/"
 
-  leaves_to_plot = ["costheta1","costheta2","Phi1","costhetastar","Phi","M4L","MZ1","MZ2","costheta1d","costheta2d","Phid","costhetastard","Phi1d","q2V1","q2V2"]
+  leaves_to_plot = ["costheta1","costheta2","Phi1","costhetastar","Phi","M4L","MZ1","MZ2","costheta1d","costheta2d","Phid","costhetastard","Phi1d"]
+  if make_VBFcuts:
+     leaves_to_plot += ["q2V1", "q2V2"]
   for observable in leaves_to_plot:
     xRangeUpper = 1
     xRangeLower = 0
